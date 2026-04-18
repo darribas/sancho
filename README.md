@@ -52,6 +52,34 @@ sancho /path/to/project
 
 Provide an explicit path to work on a different project location than your current directory.
 
+## Makefile
+
+The project includes a `Makefile` with the following targets:
+
+**Install:**
+```bash
+make install
+```
+Builds the `sancho` Docker image and creates a `/usr/local/bin/sancho` symlink to `run.sh`.
+
+**Build:**
+```bash
+make build
+```
+Creates the `sancho` Docker image from the current `Dockerfile`.
+
+**Clean:**
+```bash
+make clean
+```
+Removes the `sancho` Docker image.
+
+**Update:**
+```bash
+make update
+```
+Removes existing `sancho` image, rebuilds it with the latest OpenCode version, and displays the installed version number.
+
 ## Structure
 
 ### Configuration Files
