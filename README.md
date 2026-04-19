@@ -108,9 +108,11 @@ Removes existing `sancho` image, rebuilds it with the latest OpenCode version, a
 - Passes OLLAMA_HOST environment variable to container
 
 **`Dockerfile`** - OpenCode container image
-- Ubuntu 24.04 base with essential tools (curl, git, openssh, jq)
+- Ubuntu 24.04 base with essential tools (curl, git, openssh, jq, ripgrep, fd, tree)
+- Node 20 (via NodeSource) with language servers: bash, markdown, TypeScript, JSON/HTML/CSS, YAML, Dockerfile
+- Python LSP (`python-lsp-server`) with plugins (pylsp-mypy, pycodestyle, pylint) in an isolated venv
 - Creates `coder` user with configurable UID for host file permissions
-- Installs OpenCode via official installer from opencode.ai
+- Installs latest OpenCode via official installer from opencode.ai
 - Sets up directories for shared state and config persistence
 
 ### Architecture
