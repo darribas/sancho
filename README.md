@@ -137,6 +137,38 @@ Removes existing `sancho` image, rebuilds it with the latest OpenCode version, a
 └─────────────────────────────────┘
 ```
 
+## Adding Models
+
+### Register a model in OpenCode
+
+Add an entry to the `models` block in `opencode.json`:
+
+```json
+"your-model-name": {
+  "name": "your-model-name",
+  "tools": true
+}
+```
+
+The name must match exactly what Ollama serves at your endpoint.
+
+### Create a custom variant in Ollama
+
+To create a version of an existing model with different parameters (e.g. larger context window), write a Modelfile:
+
+```
+FROM base-model:tag
+PARAMETER num_ctx 65536
+```
+
+Then create it on your Ollama host:
+
+```bash
+OLLAMA_HOST=<your-host> ollama create my-model:custom-tag -f Modelfile
+```
+
+Then register `my-model:custom-tag` in `opencode.json` as above.
+
 ## Configuration
 
 ### Ollama Endpoint
