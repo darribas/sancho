@@ -66,6 +66,28 @@ fi
 
 echo "Resolved $HOSTNAME to $RESOLVED_IP"
 
+# Keep the active model loaded in Ollama while the container is running.
+# Re-reads OpenCode's state each cycle so it tracks model switches.
+# Pings every 4 minutes with a 5-minute keep_alive window.
+OLLAMA_BASE=$(echo "$OLLAMA_HOST" | sed 's|/v1$||')
+
+_keepalive() {
+  while true; do
+    model=$(docker run --rm -v opencode-state:/state alpine \
+      sh -c 'cat /state/model.json 2>/dev/null' \
+      | jq -r '.recent[0].modelID // empty')
+    if [ -n "$model" ]; then
+      curl -s -o /dev/null -X POST "${OLLAMA_BASE}/api/generate" \
+        -H "Content-Type: application/json" \
+        -d "{\"model\": \"${model}\", \"keep_alive\": \"5m\"}"
+    fi
+    sleep 240
+  done
+}
+
+_keepalive &
+KEEPALIVE_PID=$!
+
 docker run -it --rm \
   --add-host "${HOSTNAME}:${RESOLVED_IP}" \
   -e GLAMOUR_STYLE=dark \
@@ -78,3 +100,6 @@ docker run -it --rm \
   -v "opencode-state:/home/coder/.local/state/opencode" \
   -v "${HOME}/.gitconfig:/home/coder/.gitconfig:ro" \
   sancho
+
+kill "$KEEPALIVE_PID" 2>/dev/null
+wait "$KEEPALIVE_PID" 2>/dev/null
