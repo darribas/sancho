@@ -4,7 +4,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates git openssh-client jq \
-    python3 python3-pip \
+    python3 \
     ripgrep fd-find tree \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
@@ -28,11 +28,11 @@ ENV HOME=/home/coder
 
 RUN mkdir -p /home/coder/.local/share/opencode /home/coder/.local/state/opencode
 
-RUN pip3 install --user nb-cli
+RUN curl -fsSL https://raw.githubusercontent.com/jupyter-ai-contrib/nb-cli/main/install.sh | bash
 
 # Install OpenCode (always latest)
 RUN curl -fsSL https://opencode.ai/install | bash
 
-ENV PATH=/home/coder/.opencode/bin:/home/coder/.local/bin:$PATH
+ENV PATH=/home/coder/.opencode/bin:/home/coder/.nb-cli/bin:$PATH
 
 ENTRYPOINT ["opencode"]
