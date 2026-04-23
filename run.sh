@@ -3,7 +3,16 @@
 # Usage: ./run.sh [path/to/project]   (defaults to current directory)
 
 PROJECT="${1:-$(pwd)}"
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+# Resolve the script's directory portably (Linux and macOS).
+# macOS's BSD readlink lacks -f, so follow symlinks manually.
+SOURCE="${BASH_SOURCE[0]:-$0}"
+while [ -L "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 URL_FILE="${SCRIPT_DIR}/provider-url.txt"
 if [ -f "$URL_FILE" ]; then
@@ -13,9 +22,42 @@ else
   exit 1
 fi
 
-# Extract hostname from URL and resolve to IP dynamically
+# Extract hostname from URL and resolve to IP dynamically.
 HOSTNAME=$(echo "$OLLAMA_HOST" | sed -E 's|^https?://||' | cut -d':' -f1)
-RESOLVED_IP=$(getent hosts "$HOSTNAME" 2>/dev/null | awk '{print $1; exit}')
+
+resolve_host() {
+  local host="$1" ip=""
+
+  # Linux: getent uses nsswitch, which honours Tailscale's resolver.
+  if command -v getent >/dev/null 2>&1; then
+    ip=$(getent hosts "$host" 2>/dev/null | awk '{print $1; exit}')
+    [ -n "$ip" ] && { echo "$ip"; return 0; }
+  fi
+
+  # macOS: dscacheutil uses the system resolver, which picks up Tailscale
+  # MagicDNS.
+  if command -v dscacheutil >/dev/null 2>&1; then
+    ip=$(dscacheutil -q host -a name "$host" 2>/dev/null \
+      | awk '/^ip_address:/ {print $2; exit}')
+    [ -n "$ip" ] && { echo "$ip"; return 0; }
+  fi
+
+  # Fallbacks available on most systems.
+  if command -v dig >/dev/null 2>&1; then
+    ip=$(dig +short "$host" 2>/dev/null | awk '/^[0-9.]+$/ {print; exit}')
+    [ -n "$ip" ] && { echo "$ip"; return 0; }
+  fi
+
+  if command -v host >/dev/null 2>&1; then
+    ip=$(host "$host" 2>/dev/null \
+      | awk '/has address/ {print $NF; exit}')
+    [ -n "$ip" ] && { echo "$ip"; return 0; }
+  fi
+
+  return 1
+}
+
+RESOLVED_IP=$(resolve_host "$HOSTNAME")
 
 if [ -z "$RESOLVED_IP" ]; then
   echo "Error: Could not resolve $HOSTNAME - check DNS/Tailscale connection"
