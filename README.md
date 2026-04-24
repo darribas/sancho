@@ -115,6 +115,10 @@ Removes existing `sancho` image, rebuilds it with the latest OpenCode version, a
 - Installs [nb-cli](https://github.com/jupyter-ai-contrib/nb-cli) via official installer for Jupyter notebook interaction
 - Sets up directories for shared state and config persistence
 
+**`skills/notebook-cli/SKILL.md`** - OpenCode skill for Jupyter notebooks
+- Instructs OpenCode to use the `nb` CLI for all `.ipynb` operations instead of built-in file tools
+- Mounted read-only into the container at `~/.config/opencode/skills/notebook-cli/`
+
 ### Architecture
 
 ```

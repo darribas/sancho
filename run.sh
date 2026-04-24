@@ -96,6 +96,7 @@ docker run -it --rm \
   -w /workspace \
   -v "${SCRIPT_DIR}/opencode.json:/home/coder/.config/opencode/opencode.json:ro" \
   -v "${SCRIPT_DIR}/tui.json:/home/coder/.config/opencode/tui.json:ro" \
+  -v "${SCRIPT_DIR}/skills:/home/coder/.config/opencode/skills:ro" \
   -v "opencode-share:/home/coder/.local/share/opencode" \
   -v "opencode-state:/home/coder/.local/state/opencode" \
   -v "${HOME}/.gitconfig:/home/coder/.gitconfig:ro" \
