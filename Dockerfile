@@ -28,9 +28,11 @@ ENV HOME=/home/coder
 
 RUN mkdir -p /home/coder/.local/share/opencode /home/coder/.local/state/opencode
 
+RUN curl -fsSL https://raw.githubusercontent.com/jupyter-ai-contrib/nb-cli/main/install.sh | bash
+
 # Install OpenCode (always latest)
 RUN curl -fsSL https://opencode.ai/install | bash
 
-ENV PATH=/home/coder/.opencode/bin:$PATH
+ENV PATH=/home/coder/.opencode/bin:/home/coder/.nb-cli/bin:$PATH
 
 ENTRYPOINT ["opencode"]

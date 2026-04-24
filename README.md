@@ -112,6 +112,7 @@ Removes existing `sancho` image, rebuilds it with the latest OpenCode version, a
 - Node 20 (via NodeSource) with language servers: bash, markdown, TypeScript, JSON/HTML/CSS, YAML, Dockerfile, and pyright (Python)
 - Creates `coder` user with configurable UID for host file permissions
 - Installs latest OpenCode via official installer from opencode.ai
+- Installs [nb-cli](https://github.com/jupyter-ai-contrib/nb-cli) via official installer for Jupyter notebook interaction
 - Sets up directories for shared state and config persistence
 
 ### Architecture
