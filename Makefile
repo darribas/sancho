@@ -1,6 +1,9 @@
-.PHONY: build clean update install
+.PHONY: build build-with-cache clean update install
 
 build:
+	docker build --no-cache -t sancho .
+
+build-with-cache:
 	docker build -t sancho .
 
 clean:
